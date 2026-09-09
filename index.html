@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>DataPulse Analytics — Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-decor" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+      <span class="orb orb-d"></span>
+      <span class="orb orb-e"></span>
+    </div>
+
+    <div class="overlay-bg" id="overlayBg"></div>
+
+    <!-- LOGIN GATE (client-side demo only — fields are pre-filled with the
+     demo credentials so a portfolio visitor can just hit "Log In") -->
+    <div class="login-gate" id="loginGate">
+      <div class="login-card glass">
+        <div class="login-mark"><i class="fa-solid fa-chart-line"></i></div>
+        <h2>DataPulse Analytics</h2>
+        <p class="lc-sub">Log in to view the demo dashboard</p>
+        <form class="login-form" id="loginForm">
+          <div>
+            <label>Username</label>
+            <input
+              type="text"
+              id="loginUsername"
+              value="admin"
+              autocomplete="username"
+              required
+            />
+          </div>
+          <div>
+            <label>Password</label>
+            <input
+              type="password"
+              id="loginPassword"
+              value="admin"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <div class="login-error" id="loginError">
+            Invalid username or password
+          </div>
+          <button type="submit" class="login-submit" id="loginSubmit">
+            <i class="fa-solid fa-lock"></i>Log In
+          </button>
+        </form>
+        <div class="login-note">
+          <i class="fa-solid fa-shield-halved"></i>Demo credentials pre-filled —
+          just click Log In
+        </div>
+      </div>
+    </div>
+
+    <div class="app" id="appRoot">
+      <!-- SIDEBAR -->
+      <aside class="sidebar glass" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="brand-text">
+            <div class="brand-name">Data<span>Pulse</span></div>
+            <div class="brand-sub">Analytics</div>
+          </div>
+          <i class="fa-solid fa-xmark sidebar-close" id="sidebarClose"></i>
+        </div>
+
+        <nav class="primary-nav">
+          <div class="nav-item active" data-page="overview">
+            <i class="fa-solid fa-gauge-high"></i>Overview
+          </div>
+          <div class="nav-item" data-page="traffic">
+            <i class="fa-solid fa-chart-line"></i>Traffic
+          </div>
+          <div class="nav-item" data-page="acquisition">
+            <i class="fa-solid fa-bullseye"></i>Acquisition
+          </div>
+          <div class="nav-item" data-page="audience">
+            <i class="fa-solid fa-users"></i>Audience
+          </div>
+          <div class="nav-label">Workspace</div>
+          <div class="nav-item" data-page="settings">
+            <i class="fa-solid fa-gear"></i>Settings
+          </div>
+        </nav>
+
+        <div class="status-card">
+          <div class="sc-top">
+            <span class="status-dot" id="statusDot"></span>
+            <h4 id="statusTitle">Demo data</h4>
+          </div>
+          <p id="statusDesc">
+            This dashboard runs entirely on generated sample data — no backend
+            required.
+          </p>
+        </div>
+        <button class="logout-btn" id="logoutBtn">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out
+        </button>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="main">
+        <header class="topbar glass">
+          <button class="menu-btn" id="menuBtn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              id="mainSearch"
+              placeholder="Search pages, sources…"
+            />
+          </div>
+          <select class="range-select" id="rangeSelect">
+            <option value="7">Last 7 days</option>
+            <option value="28" selected>Last 28 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <div class="topbar-right">
+            <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+              <div class="knob">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+              </div>
+            </button>
+            <button class="icon-btn spin" id="refreshBtn" title="Refresh data">
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+            <div class="export-wrap">
+              <button class="btn-primary" id="exportBtn">
+                <span class="btn-icon-swap"
+                  ><i class="fa-solid fa-file-arrow-down"></i
+                  ><i class="fa-solid fa-check"></i></span
+                ><span id="exportLabel">Export Report</span>
+              </button>
+              <div class="export-menu glass" id="exportMenu">
+                <button class="export-item pdf" data-format="PDF">
+                  <i class="fa-solid fa-file-pdf"></i>Export as PDF
+                </button>
+                <button class="export-item json" data-format="JSON">
+                  <i class="fa-solid fa-file-code"></i>Export as JSON
+                </button>
+                <button class="export-item xlsx" data-format="Excel">
+                  <i class="fa-solid fa-file-excel"></i>Export as Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- OVERVIEW -->
+        <section class="page active" id="page-overview">
+          <div class="page-head">
+            <div>
+              <h1>Performance Overview</h1>
+              <p>Acme Store — website &amp; marketing channels.</p>
+            </div>
+            <div class="live-pill">
+              <span class="lp-dot"></span><span id="liveCount">7</span> live
+              visitors
+            </div>
+          </div>
+
+          <div class="stat-grid" id="statGrid"></div>
+
+          <div class="grid-2col">
+            <div class="panel">
+              <div class="panel-head"><h3>Sessions &amp; Users</h3></div>
+              <div class="chart-legend">
+                <span
+                  ><i class="dot" style="background: var(--blue)"></i
+                  >Sessions</span
+                >
+                <span
+                  ><i class="dot" style="background: var(--accent)"></i
+                  >Users</span
+                >
+              </div>
+              <div class="chart-wrap"><canvas id="trafficChart"></canvas></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Acquisition Channels</h3></div>
+              <div class="chart-wrap" style="height: 230px">
+                <canvas id="channelChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <div class="panel">
+              <div class="panel-head"><h3>Top Pages</h3></div>
+              <div class="table-scroll">
+                <table class="data-table" id="pagesTable">
+                  <thead>
+                    <tr>
+                      <th>Page</th>
+                      <th>Views</th>
+                      <th>Avg. Time</th>
+                      <th>Bounce</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Top Countries</h3></div>
+              <div class="rank-list" id="countryList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TRAFFIC -->
+        <section class="page" id="page-traffic">
+          <div class="page-head">
+            <div>
+              <h1>Traffic</h1>
+              <p>Visit trends for the selected period.</p>
+            </div>
+          </div>
+          <div class="stat-grid" id="statGridTraffic"></div>
+          <div class="panel">
+            <div class="panel-head"><h3>Sessions by Day</h3></div>
+            <div class="chart-wrap"><canvas id="trafficChart2"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>New vs Returning Visitors</h3></div>
+            <div class="chart-wrap" style="height: 220px">
+              <canvas id="newReturningChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ACQUISITION -->
+        <section class="page" id="page-acquisition">
+          <div class="page-head">
+            <div>
+              <h1>Acquisition</h1>
+              <p>Where visitors come from and which channels convert best.</p>
+            </div>
+          </div>
+          <div class="grid-2col">
+            <div class="panel">
+              <div class="panel-head"><h3>Sources &amp; Conversions</h3></div>
+              <div class="table-scroll">
+                <table class="data-table" id="sourcesTable">
+                  <thead>
+                    <tr>
+                      <th>Source</th>
+                      <th>Sessions</th>
+                      <th>Conversions</th>
+                      <th>Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Channel Split</h3></div>
+              <div class="chart-wrap" style="height: 260px">
+                <canvas id="channelChart2"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AUDIENCE -->
+        <section class="page" id="page-audience">
+          <div class="page-head">
+            <div>
+              <h1>Audience</h1>
+              <p>Geography and devices of your visitors.</p>
+            </div>
+          </div>
+          <div class="grid-2col">
+            <div class="panel">
+              <div class="panel-head"><h3>Top Countries</h3></div>
+              <div class="rank-list" id="countryListFull"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Devices</h3></div>
+              <div class="device-split" id="deviceSplit"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Activity by Hour of Day</h3></div>
+            <div class="chart-wrap" style="height: 220px">
+              <canvas id="hourlyChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="page" id="page-settings">
+          <div class="page-head">
+            <div>
+              <h1>Settings</h1>
+              <p>Demo project settings.</p>
+            </div>
+          </div>
+          <div class="panel">
+            <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 14px">
+              About this demo
+            </h3>
+            <span class="conn-badge mock"
+              ><span class="cb-dot"></span>Sample data — no live
+              connection</span
+            >
+            <p
+              style="
+                margin-top: 12px;
+                font-size: 12.5px;
+                color: var(--text-2);
+                line-height: 1.6;
+                max-width: 520px;
+              "
+            >
+              This project is a portfolio demo. All numbers are randomly
+              generated in the browser — switching the date range regenerates a
+              fresh, realistic-looking dataset so you can see the charts and
+              interactions in action. In a real client project, this same UI
+              connects to Google Analytics 4 (or another data source) through a
+              small backend.
+            </p>
+          </div>
+          <div class="panel">
+            <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 6px">
+              Interface
+            </h3>
+            <div class="settings-row-toggle">
+              <div>
+                <div class="t">Appearance</div>
+                <div class="d">Toggle light/dark theme</div>
+              </div>
+              <button class="theme-toggle" id="themeToggle2">
+                <div class="knob"><i class="fa-solid fa-moon"></i></div>
+              </button>
+            </div>
+            <div class="settings-row-toggle">
+              <div>
+                <div class="t">Auto-refresh</div>
+                <div class="d">Refresh data every 5 minutes</div>
+              </div>
+              <button class="theme-toggle" id="toggleAuto">
+                <div
+                  class="knob"
+                  style="
+                    transform: translateX(22px);
+                    background: linear-gradient(135deg, var(--green), #34d399);
+                  "
+                ></div>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- AI Insights widget -->
+    <button class="ai-fab" id="aiFab" title="AI Insights">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </button>
+    <div class="ai-panel glass" id="aiPanel">
+      <div class="ai-head">
+        <div class="ai-icon"><i class="fa-solid fa-sparkles"></i></div>
+        <div>
+          <h4>AI Insights</h4>
+          <p>● Analyzing dashboard data</p>
+        </div>
+        <i class="fa-solid fa-xmark ai-close" id="aiClose"></i>
+      </div>
+      <div class="ai-body" id="aiBody"></div>
+      <div class="ai-chips" id="aiChips"></div>
+      <div class="ai-input-row">
+        <input type="text" id="aiInput" placeholder="Ask about the stats…" />
+        <button class="ai-send" id="aiSend">
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
